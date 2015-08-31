@@ -172,14 +172,14 @@ dbhCols <- paste0('dbh', censusYears2digit)
 condCols <- paste0('cond', censusYears2digit)
 dayCols <- paste0('day', censusYears2digit)
 
-cols <- c("census_id", "id", "stat_id", "species", dbhCols, condCols)
+cols <- c("census_id", "site", "id", "stat_id", "species", dbhCols, condCols)
 tmp <- census[ , cols]
-dbh <- melt(tmp, id.vars = c("species","census_id", "stat_id", "id", condCols))
+dbh <- melt(tmp, id.vars = c("species","census_id", "site", "stat_id", "id", condCols))
 dbh$yr=substring(dbh$variable,4,5)
 
-cols <- c("census_id", "id", "stat_id", "species", dayCols, condCols)
+cols <- c("census_id", "site", "id", "stat_id", "species", dayCols, condCols)
 tmp <- census[ , cols]
-day <- melt(tmp, id.vars = c("species","census_id", "stat_id", "id", condCols))
+day <- melt(tmp, id.vars = c("species","census_id", "site", "stat_id", "id", condCols))
 day$yr=substring(day$variable,4,5)
 
 names(day)[names(day) == 'value'] <- 'day'
@@ -196,7 +196,7 @@ dbh2$status <- dbh2[cbind(1:nrow(dbh2), dbh2$col)]
 dbh2 <- merge(dbh2, census[ , c('stat_id', 'yr1991')], all.x = TRUE, all.y = FALSE)
 dbh2$year[dbh2$year == 1991] <- dbh2$yr1991[dbh2$year == 1991]
 
-dbh <- subset(dbh2, status == "L", c('yr', 'year', 'species', 'day', 'census_id', 'id', 'stat_id','value'))
+dbh <- subset(dbh2, status == "L", c('yr', 'year', 'species', 'day', 'census_id', 'id', 'stat_id', 'site', 'value'))
 dbh <- subset(dbh, !is.na(value))
 ## dbh is a core data object going into the stat model
 
@@ -282,6 +282,12 @@ tbl <- table(census$species)
 taxaMatch <- data.frame(tbl); names(taxaMatch) <- c('species', 'count')
 taxaMatch$taxon <- 1:nrow(taxaMatch)
 
+# get the site number
+site_data    <- data.frame(stat_id=dbh$stat_id, site=dbh$site)
+site_data    <- site_data[!duplicated(dbh$stat_id),]
+tree_site_id <- site_data[order(site_data$stat_id), 'site']
+nSites       <- length(unique(tree_site_id))
+
 nDBH <- nrow(dbh)
 logDobs <- log(dbh$value)
 dbh_tree_id <- dbh$stat_id
@@ -316,7 +322,7 @@ dead <- census$lastYear < lastYear
 
 last_time <- getTimeIndex(census$lastYear)
 
-save(n, nT, nDBH, nWidths, dbh_tree_id, dbh_day_id, dbh_year_id, incr_tree_id, incr_year_id,
+save(n, nT, nDBH, nWidths, nSites, dbh_tree_id, dbh_day_id, dbh_year_id, incr_tree_id, incr_year_id, tree_site_id,
      logDobs, logXobs, last_time, census, dbh, incrData, incr, treeMeta, ringMeta,
      nSaplings, sapling_tree_id, sapling_year_id, max_size, taxon, nTaxa,
      file = 'data.Rda')
