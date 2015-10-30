@@ -41,17 +41,17 @@ ring_model_full <- function() {
 
     # two core trees
     for (i in 1:n2cores) {
-      logXobs[i2core2m[i]:(i2core2m[i]+1)] ~ dmnorm(log(X[m2tree[i2core2m[i]], m2ti[i2core2m[i]]])*ones[1:2], cov2[1:2,1:2])
+      logXobs[i2core2m[i]:(i2core2m[i]+1)] ~ dmnorm(log(X[m2tree[i2core2m[i]], m2ti[i2core2m[i]]])*ones[1:2], cov=cov2[1:2,1:2])
     }
 
     # three core trees
     for (i in 1:n3cores) {
-      logXobs[i3core2m[i]:(i3core2m[i]+2)] ~ dmnorm(log(X[m2tree[i3core2m[i]], m2ti[i3core2m[i]]]), cov3[1:3,1:3])
+      logXobs[i3core2m[i]:(i3core2m[i]+2)] ~ dmnorm(log(X[m2tree[i3core2m[i]], m2ti[i3core2m[i]]]), cov=cov3[1:3,1:3])
     }
 
     # four core trees (only 2 in lyford)
     for (i in 1:n4cores) {
-      logXobs[i4core2m[i]:(i4core2m[i]+2)] ~ dmnorm(log(X[m2tree[i4core2m[i]], m2ti[i4core2m[i]]]), cov3[1:4,1:4])
+      logXobs[i4core2m[i]:(i4core2m[i]+2)] ~ dmnorm(log(X[m2tree[i4core2m[i]], m2ti[i4core2m[i]]]), cov=cov3[1:4,1:4])
     }
 
     # process evolution
